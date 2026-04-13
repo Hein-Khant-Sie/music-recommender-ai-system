@@ -28,7 +28,26 @@ Some prompts to answer:
 - How do you choose which songs to recommend
 
 You can include a simple diagram or bullet list if helpful.
+In real-world recommender systems, recommendations are usually created by combining multiple features instead of relying on just one. Systems often use a weighted scoring method that considers factors like mood, genre, energy, tempo, and user preferences to rank songs. Mood helps capture the overall vibe a user wants, but it is often combined with numeric features like energy and tempo to make the recommendations more precise. In my version, I prioritize mood as the main factor by giving higher scores to songs that match the user’s desired feeling, while also using other features to refine the final results.
 
+## Song features used:
+	•	Mood
+	•	Genre
+	•	Energy
+	•	Tempo (BPM)
+## UserProfile stores:
+	•	Preferred mood
+	•	Favorite genres
+	•	Preferred energy level
+	•	Preferred tempo range
+
+My recommender system works by comparing each song in the dataset to a user’s taste profile and assigning a score based on how well it matches. In real-world systems, recommendations usually combine multiple features, but in my version I prioritize simplicity while still capturing key preferences like mood, genre, and energy. Each song includes features such as genre, mood, energy, tempo, valence, danceability, and acousticness, while the user profile stores preferred values for these attributes. The system reads one song at a time from the dataset, evaluates how closely it matches the user’s preferences, and then ranks all songs based on their scores.
+## Algorithm Recipe
+Each song is scored using a simple point-based system. If the song’s genre matches the user’s favorite genre, it receives +2.0 points. If the song’s mood matches the user’s preferred mood, it receives +1.0 point. The system then calculates an energy similarity score based on how close the song’s energy is to the user’s target energy, using a formula like (1 − |song_energy − target_energy|). The total score is the sum of these values. After scoring all songs, the system sorts them in descending order and recommends the top-ranked songs.
+## Potential Biases
+This system may over-prioritize genre since it has the highest point value, which could cause it to ignore songs from different genres that still match the user’s mood or energy well. It may also be somewhat narrow because it only uses exact matches for mood and genre, limiting diversity in recommendations. Additionally, relying heavily on energy similarity might favor songs within a small range and overlook slightly different but still enjoyable options.
+## Sample output 
+![Recommendations Screenshot](images/recommendations.png)
 ---
 
 ## Getting Started
