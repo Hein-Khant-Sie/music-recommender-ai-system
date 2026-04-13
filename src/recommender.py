@@ -3,6 +3,9 @@ from dataclasses import dataclass
 import csv
 
 
+ARTIST_DIVERSITY_PENALTY = 0.35
+
+
 @dataclass
 class Song:
     """
@@ -72,6 +75,9 @@ def load_songs(csv_path: str) -> List[Dict]:
                     "valence": float(row["valence"]),
                     "danceability": float(row["danceability"]),
                     "acousticness": float(row["acousticness"]),
+                    "popularity": int(row["popularity"]),
+                    "release_decade": row["release_decade"],
+                    "mood_tag": row["mood_tag"],
                 }
             )
 
@@ -84,17 +90,52 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     explanation_parts: List[str] = []
 
     if song.get("genre") == user_prefs.get("genre"):
-        score += 2.0
-        explanation_parts.append("genre match (+2.0)")
+        score += 1.0
+        explanation_parts.append("genre match (+1.0)")
 
     if song.get("mood") == user_prefs.get("mood"):
-        score += 1.0
-        explanation_parts.append("mood match (+1.0)")
+        score += 2.0
+        explanation_parts.append("mood match (+2.0)")
 
     energy_similarity = 1 - \
         abs(song.get("energy", 0.0) - user_prefs.get("energy", 0.0))
-    score += energy_similarity
-    explanation_parts.append(f"energy similarity (+{energy_similarity:.2f})")
+    weighted_energy = 1.0 * energy_similarity
+    score += weighted_energy
+    explanation_parts.append(f"energy similarity (+{weighted_energy:.2f})")
+
+    popularity_similarity = 1 - abs(
+        song.get("popularity", 0) - user_prefs.get("target_popularity", 50)
+    ) / 100
+    weighted_popularity = max(0.0, popularity_similarity)
+    score += weighted_popularity
+    explanation_parts.append(
+        f"popularity similarity (+{weighted_popularity:.2f})")
+
+    if song.get("release_decade") == user_prefs.get("release_decade"):
+        score += 0.8
+        explanation_parts.append("release decade match (+0.8)")
+
+    danceability_similarity = 1 - abs(
+        song.get("danceability", 0.0) -
+        user_prefs.get("target_danceability", 0.5)
+    )
+    weighted_danceability = max(0.0, danceability_similarity)
+    score += weighted_danceability
+    explanation_parts.append(
+        f"danceability similarity (+{weighted_danceability:.2f})")
+
+    acousticness_similarity = 1 - abs(
+        song.get("acousticness", 0.0) -
+        user_prefs.get("target_acousticness", 0.5)
+    )
+    weighted_acousticness = max(0.0, acousticness_similarity)
+    score += weighted_acousticness
+    explanation_parts.append(
+        f"acousticness similarity (+{weighted_acousticness:.2f})")
+
+    if song.get("mood_tag") == user_prefs.get("mood_tag"):
+        score += 1.2
+        explanation_parts.append("mood tag match (+1.2)")
 
     return score, explanation_parts
 
@@ -108,5 +149,33 @@ def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tup
         explanation = ", ".join(explanation_parts)
         results.append((song, score, explanation))
 
-    results.sort(key=lambda item: item[1], reverse=True)
-    return results[:k]
+    selected_results: List[Tuple[Dict, float, str]] = []
+    artist_counts: Dict[str, int] = {}
+    remaining = results.copy()
+
+    while remaining and len(selected_results) < k:
+        best_index = 0
+        best_adjusted_score = None
+
+        for index, (song, base_score, _) in enumerate(remaining):
+            artist = song.get("artist", "")
+            repeats = artist_counts.get(artist, 0)
+            adjusted_score = base_score - (ARTIST_DIVERSITY_PENALTY * repeats)
+
+            if best_adjusted_score is None or adjusted_score > best_adjusted_score:
+                best_adjusted_score = adjusted_score
+                best_index = index
+
+        song, base_score, explanation = remaining.pop(best_index)
+        artist = song.get("artist", "")
+        repeats = artist_counts.get(artist, 0)
+        penalty_value = ARTIST_DIVERSITY_PENALTY * repeats
+        final_score = base_score - penalty_value
+
+        if penalty_value > 0:
+            explanation = f"{explanation}, artist diversity penalty (-{penalty_value:.2f})"
+
+        selected_results.append((song, final_score, explanation))
+        artist_counts[artist] = repeats + 1
+
+    return selected_results

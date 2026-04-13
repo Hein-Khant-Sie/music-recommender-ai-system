@@ -1,19 +1,19 @@
-id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness
-1,Sunrise City,Neon Echo,pop,happy,0.82,118,0.84,0.79,0.18
-2,Midnight Coding,LoRoom,lofi,chill,0.42,78,0.56,0.62,0.71
-3,Storm Runner,Voltline,rock,intense,0.91,152,0.48,0.66,0.10
-4,Library Rain,Paper Lanterns,lofi,chill,0.35,72,0.60,0.58,0.86
-5,Gym Hero,Max Pulse,pop,intense,0.93,132,0.77,0.88,0.05
-6,Spacewalk Thoughts,Orbit Bloom,ambient,chill,0.28,60,0.65,0.41,0.92
-7,Coffee Shop Stories,Slow Stereo,jazz,relaxed,0.37,90,0.71,0.54,0.89
-8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22
-9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78
-10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35
-11,Concrete Poetry,Silver Verse,hip-hop,defiant,0.78,94,0.55,0.87,0.14
-12,Ivory Dawn,Helena Voss,classical,tranquil,0.18,58,0.46,0.19,0.97
-13,Laser Skyline,Pulse Harbor,edm,euphoric,0.96,130,0.82,0.92,0.03
-14,Porchlight Memories,Red Cedar,country,homesick,0.49,104,0.66,0.58,0.61
-15,Blue Hour Train,Muddy Avenue,blues,soulful,0.44,82,0.38,0.50,0.84
-16,Saltwind Groove,Coral District,reggae,carefree,0.57,90,0.80,0.75,0.47
-17,Paper Planes at Dusk,Nora Field,folk,tender,0.31,74,0.52,0.43,0.90
-18,Velvet Signal,Afterglow Union,r&b,sensual,0.63,86,0.73,0.81,0.26
+id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness,popularity,release_decade,mood_tag
+1,Sunrise City,Neon Echo,pop,happy,0.82,118,0.84,0.79,0.18,86,2020s,euphoric
+2,Midnight Coding,LoRoom,lofi,chill,0.42,78,0.56,0.62,0.71,72,2010s,dreamy
+3,Storm Runner,Voltline,rock,intense,0.91,152,0.48,0.66,0.10,80,2000s,aggressive
+4,Library Rain,Paper Lanterns,lofi,chill,0.35,72,0.60,0.58,0.86,68,2010s,nostalgic
+5,Gym Hero,Max Pulse,pop,intense,0.93,132,0.77,0.88,0.05,84,2020s,aggressive
+6,Spacewalk Thoughts,Orbit Bloom,ambient,chill,0.28,60,0.65,0.41,0.92,60,2010s,dreamy
+7,Coffee Shop Stories,Slow Stereo,jazz,relaxed,0.37,90,0.71,0.54,0.89,65,2000s,nostalgic
+8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22,78,2010s,melancholic
+9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78,70,2020s,dreamy
+10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35,82,2020s,euphoric
+11,Concrete Poetry,Silver Verse,hip-hop,defiant,0.78,94,0.55,0.87,0.14,76,2010s,aggressive
+12,Ivory Dawn,Helena Voss,classical,tranquil,0.18,58,0.46,0.19,0.97,58,1990s,melancholic
+13,Laser Skyline,Pulse Harbor,edm,euphoric,0.96,130,0.82,0.92,0.03,88,2020s,euphoric
+14,Porchlight Memories,Red Cedar,country,homesick,0.49,104,0.66,0.58,0.61,62,2000s,nostalgic
+15,Blue Hour Train,Muddy Avenue,blues,soulful,0.44,82,0.38,0.50,0.84,61,1990s,melancholic
+16,Saltwind Groove,Coral District,reggae,carefree,0.57,90,0.80,0.75,0.47,67,2000s,dreamy
+17,Paper Planes at Dusk,Nora Field,folk,tender,0.31,74,0.52,0.43,0.90,63,2010s,nostalgic
+18,Velvet Signal,Afterglow Union,r&b,sensual,0.63,86,0.73,0.81,0.26,74,2020s,dreamy
