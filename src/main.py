@@ -12,6 +12,7 @@ You will implement the functions in recommender.py:
 from textwrap import wrap
 
 from src.recommender import load_songs, recommend_songs
+from src.ai_explainer import explain_recommendations
 
 
 def print_recommendations_table(recommendations) -> None:
@@ -93,6 +94,9 @@ def main() -> None:
 
     print("\nTop recommendations:\n")
     print_recommendations_table(recommendations)
+
+    print("\nAI Explanation:\n")
+    print(explain_recommendations(recommendations))
 
 
 if __name__ == "__main__":
