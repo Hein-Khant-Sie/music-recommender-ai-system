@@ -1,4 +1,5 @@
 import os
+import re
 from google import genai
 from dotenv import load_dotenv
 
@@ -17,19 +18,48 @@ def _get_client():
     return _client
 
 
+def _dynamic_fallback(reason_text: str) -> str:
+    text = reason_text.lower()
+    parts = []
+
+    if "mood" in text:
+        parts.append("the right mood")
+    if "energy" in text:
+        parts.append("a matching energy")
+    if "danceab" in text:
+        parts.append("a rhythm made for moving")
+    if "acoustic" in text:
+        parts.append("a natural, softer sound")
+    if "genre" in text:
+        parts.append("a style that suits your taste")
+
+    if not parts:
+        parts = ["a feel that lines up with what you enjoy"]
+
+    if len(parts) == 1:
+        return f"This track brings {parts[0]} that we think you'll love."
+    elif len(parts) == 2:
+        return f"This track brings {parts[0]} and {parts[1]} that we think you'll love."
+    else:
+        joined = ", ".join(parts[:-1]) + f", and {parts[-1]}"
+        return f"This track brings {joined} that we think you'll love."
+
+
 def explain_reason(reason_text: str) -> str:
     client = _get_client()
     if client is None:
-        return "This song matches your preferences well in mood and style."
+        return _dynamic_fallback(reason_text)
 
     prompt = (
-        "Rewrite this explanation into ONE short, natural sentence.\n\n"
-        f"{reason_text}\n\n"
+        "You are writing a short music recommendation blurb for a listener.\n"
+        "Convert the technical reason below into exactly ONE warm, natural sentence.\n\n"
+        f"Reason: {reason_text}\n\n"
         "Rules:\n"
-        "- Only output ONE sentence\n"
-        "- Do NOT give multiple options\n"
-        "- Do NOT include numbers or technical terms\n"
-        "- Keep it simple and natural\n"
+        "- Output ONE sentence only — no options, no alternatives, no bullet points\n"
+        "- No numbers, scores, percentages, or technical terms\n"
+        "- Sound like a knowledgeable friend casually recommending a song\n"
+        "- Reference what makes it a good fit: mood, energy, rhythm, sound texture, or style\n"
+        "- Good example: \"This song should hit the right mood and energy, with a familiar rhythm and natural sound that we think you'll love.\"\n"
     )
 
     try:
@@ -40,12 +70,19 @@ def explain_reason(reason_text: str) -> str:
 
         result = response.text.strip()
 
-        # 🔧 Fix messy multi-option responses
-        if "option" in result.lower() or "*" in result:
-            lines = [line.strip() for line in result.split("\n") if line.strip()]
-            result = lines[-1]
+        # Strip markdown bold/italic markers
+        result = re.sub(r"[*_]{1,2}", "", result)
 
-        return result
+        # If multiple lines sneak through, take the first non-empty sentence
+        lines = [line.strip() for line in result.splitlines() if line.strip()]
+        if lines:
+            result = lines[0]
+
+        # If still multiple sentences, keep only the first
+        sentences = re.split(r"(?<=[.!?])\s+", result)
+        result = sentences[0].strip()
+
+        return result if result else _dynamic_fallback(reason_text)
 
     except Exception:
-        return "This song matches your preferences well in mood and style."
+        return _dynamic_fallback(reason_text)
