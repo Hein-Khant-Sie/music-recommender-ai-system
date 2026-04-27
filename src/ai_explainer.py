@@ -1,37 +1,51 @@
 import os
-from typing import List, Tuple, Dict
-
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
 
 load_dotenv()
 
+_client = None
 
-def explain_recommendations(
-    recommendations: List[Tuple[Dict, float, str]]
-) -> str:
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        return "GEMINI_API_KEY not set. Skipping AI explanation."
 
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-1.5-flash")
+def _get_client():
+    global _client
+    if _client is None:
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            return None
+        _client = genai.Client(api_key=api_key)
+    return _client
 
-    song_lines = []
-    for song, score, explanation in recommendations:
-        song_lines.append(
-            f"- \"{song['title']}\" by {song['artist']} "
-            f"(score: {score:.2f}) — {explanation}"
-        )
-    songs_text = "\n".join(song_lines)
+
+def explain_reason(reason_text: str) -> str:
+    client = _get_client()
+    if client is None:
+        return "This song matches your preferences well in mood and style."
 
     prompt = (
-        "A music recommender system selected these songs for a user:\n\n"
-        f"{songs_text}\n\n"
-        "In 2-3 sentences, explain simply why these songs were recommended. "
-        "Focus on what they have in common and why they suit the user's taste. "
-        "Avoid technical jargon."
+        "Rewrite this explanation into ONE short, natural sentence.\n\n"
+        f"{reason_text}\n\n"
+        "Rules:\n"
+        "- Only output ONE sentence\n"
+        "- Do NOT give multiple options\n"
+        "- Do NOT include numbers or technical terms\n"
+        "- Keep it simple and natural\n"
     )
 
-    response = model.generate_content(prompt)
-    return response.text.strip()
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+        )
+
+        result = response.text.strip()
+
+        # 🔧 Fix messy multi-option responses
+        if "option" in result.lower() or "*" in result:
+            lines = [line.strip() for line in result.split("\n") if line.strip()]
+            result = lines[-1]
+
+        return result
+
+    except Exception:
+        return "This song matches your preferences well in mood and style."
