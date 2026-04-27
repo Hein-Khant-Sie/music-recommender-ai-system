@@ -6,6 +6,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 _client = None
+_cache: dict[str, str] = {}
+_consecutive_429s = 0
+_MAX_429S = 3
 
 
 def _get_client():
@@ -46,8 +49,16 @@ def _dynamic_fallback(reason_text: str) -> str:
 
 
 def explain_reason(reason_text: str) -> str:
+    global _consecutive_429s
+
+    if reason_text in _cache:
+        return _cache[reason_text]
+
     client = _get_client()
     if client is None:
+        return _dynamic_fallback(reason_text)
+
+    if _consecutive_429s >= _MAX_429S:
         return _dynamic_fallback(reason_text)
 
     prompt = (
@@ -64,25 +75,31 @@ def explain_reason(reason_text: str) -> str:
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.5-flash-lite",
             contents=prompt,
         )
 
         result = response.text.strip()
+        _consecutive_429s = 0
 
-        # Strip markdown bold/italic markers
         result = re.sub(r"[*_]{1,2}", "", result)
 
-        # If multiple lines sneak through, take the first non-empty sentence
         lines = [line.strip() for line in result.splitlines() if line.strip()]
         if lines:
             result = lines[0]
 
-        # If still multiple sentences, keep only the first
         sentences = re.split(r"(?<=[.!?])\s+", result)
         result = sentences[0].strip()
 
-        return result if result else _dynamic_fallback(reason_text)
+        if result:
+            _cache[reason_text] = result
+            return result
 
-    except Exception:
+        return _dynamic_fallback(reason_text)
+
+    except Exception as e:
+        if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+            _consecutive_429s += 1
+        else:
+            _consecutive_429s = 0
         return _dynamic_fallback(reason_text)
