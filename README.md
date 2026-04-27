@@ -152,6 +152,15 @@ Overall, the system is reliable for structured inputs but limited by dataset siz
 
 ---
 
+## 🔗 Project Repository
+
+GitHub: https://github.com/Hein-Khant-Sie/music-recommender-ai-system.git
+
+## 🎥 Walkthrough Video
+
+Watch the system demo here:https://www.loom.com/share/f8c5bffbb61f4140ae1241f08bdd7765
+
+
 ## Reflection and Ethics
 
 This system has several limitations and potential biases. Because it uses a small dataset, some genres and moods are underrepresented, which can lead to repetitive recommendations. The scoring system also gives more weight to certain features like mood and genre, which may reduce diversity and ignore songs that could still be a good match in different ways.
